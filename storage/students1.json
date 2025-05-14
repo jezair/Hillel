@@ -1,0 +1,134 @@
+{
+  "students": [
+    {
+      "name": "Alice Johnson",
+      "marks": [
+        7,
+        8,
+        9,
+        10,
+        6,
+        7,
+        8
+      ],
+      "info": "Alice Johnson is 18 y.o. Interests: math"
+    },
+    {
+      "name": "Michael Smith",
+      "marks": [
+        6,
+        5,
+        7,
+        8,
+        7,
+        9,
+        10
+      ],
+      "info": "Michael Smith is 19 y.o. Interests: science"
+    },
+    {
+      "name": "Emily Davis",
+      "marks": [
+        9,
+        8,
+        8,
+        7,
+        6,
+        7,
+        7
+      ],
+      "info": "Emily Davis is 17 y.o. Interests: literature"
+    },
+    {
+      "name": "James Wilson",
+      "marks": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "info": "James Wilson is 20 y.o. Interests: sports"
+    },
+    {
+      "name": "Olivia Martinez",
+      "marks": [
+        10,
+        9,
+        8,
+        7,
+        6,
+        5,
+        4
+      ],
+      "info": "Olivia Martinez is 18 y.o. Interests: art"
+    },
+    {
+      "name": "Emily Davis",
+      "marks": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "info": "Daniel Brown is 19 y.o. Interests: music"
+    },
+    {
+      "name": "Sophia Taylor",
+      "marks": [
+        11,
+        10,
+        9,
+        8,
+        7,
+        6,
+        5
+      ],
+      "info": "Sophia Taylor is 20 y.o. Interests: physics"
+    },
+    {
+      "name": "William Anderson",
+      "marks": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "info": "William Anderson is 18 y.o. Interests: chemistry"
+    },
+    {
+      "name": "Isabella Thomas",
+      "marks": [
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "info": "Isabella Thomas is 19 y.o. Interests: biology"
+    },
+    {
+      "name": "Benjamin Jackson",
+      "marks": [
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9
+      ],
+      "info": "Benjamin Jackson is 20 y.o. Interests: history"
+    }
+  ]
+}
