@@ -1,30 +1,24 @@
-"""
-REPOSITORY: john = Repository(User()).save()
-ACTIVE RECORD: User().save()
-
-class:
-- structs
-- behavioral
-"""
-
 import csv
 from pathlib import Path
 
 
 class Student:
     def __init__(self, id, name, marks, info):
-        self.id = id
+        self.id = int(id)
         self.name = name
-        self.marks = marks
+        self.marks = [int(m) for m in marks.split(",")] if isinstance(marks, str) else marks
         self.info = info
 
     def __str__(self):
         return f"Student {self.name}"
 
-
     def as_dict(self):
-        return {"name": self.name, "marks": self.marks, "info": self.info}
-
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "marks": ",".join(map(str, self.marks)),
+            "info": self.info,
+        }
 
     @property
     def representation(self):
@@ -36,12 +30,12 @@ class Student:
             "=========================\n"
         )
 
+
 class Admin:
     def __init__(self, id, login, password):
         self.id = id
         self.login = login
         self.password = password
-
 
     def __str__(self):
         return f"Admin {self.login}"
@@ -49,13 +43,14 @@ class Admin:
 
 authorized_admin = None
 
-def load_admins():
-    admins_csv = open(ADMIN_FILE_NAME, newline="")
-    reader = csv.DictReader(admins_csv, delimiter=";")
+ADMIN_FILE_NAME = Path(__file__).parent.parent / "storage/admins.csv"
+STORAGE_FILE_NAME = Path(__file__).parent.parent / "storage/students.csv"
 
-    admins: list = [Admin(id = row["id"], login = row["login"], password = row["password"]) for row in reader]
-    admins_csv.close()
-    return admins
+
+def load_admins():
+    with open(ADMIN_FILE_NAME, newline="") as admins_csv:
+        reader = csv.DictReader(admins_csv, delimiter=";")
+        return [Admin(row["id"], row["login"], row["password"]) for row in reader]
 
 
 def auth(func):
@@ -63,60 +58,31 @@ def auth(func):
 
     def wrapper(*args, **kwargs):
         admins = load_admins()
-
         while True:
-            log = input("Enter login\n")
-            pas = input("Enter password\n")
-
-            matched = next((admin for admin in admins if admin.login == log and admin.password == pas), None)
-
+            log = input("Enter login:\n")
+            pas = input("Enter password:\n")
+            matched = next((a for a in admins if a.login == log and a.password == pas), None)
             if matched:
                 authorized_admin = matched
                 print("Enjoy")
                 break
             else:
-                print("Login or password in incorrect")
+                print("Login or password incorrect")
         return func(*args, **kwargs)
+
     return wrapper
 
 
-ADMIN_FILE_NAME = Path(__file__).parent.parent / "storage/admins.csv"
-STORAGE_FILE_NAME = Path(__file__).parent.parent / "storage/students.csv"
-
-
-
-# ─────────────────────────────────────────────────────────
-# INFRASTRUCTURE
-# ─────────────────────────────────────────────────────────
-
 class Repository:
-    """
-    RAM: John, Marry, Mark
-    SSD: John, Marry
-    """
     def __init__(self):
-        self.file = open(STORAGE_FILE_NAME, "r")
         self.students: dict[int, Student] = {
             student.id: student for student in self.get_storage()
         }
 
-        # close after reading
-        self.file.close()
-
     def get_storage(self):
-        self.file.seek(0)
-        reader = csv.DictReader(self.file, fieldnames=["id", "name", "marks", "info"], delimiter=";")
-
-        results: list[Student] = []
-        for item in reader:
-            student = Student(**item)
-            results.append(student)
-
-        return results
-
-    def __del__(self):
-        # ...
-        self.file.close()
+        with open(STORAGE_FILE_NAME, newline="") as f:
+            reader = csv.DictReader(f, fieldnames=["id", "name", "marks", "info"], delimiter=";")
+            return [Student(**row) for row in reader]
 
     def save_all(self):
         with open(STORAGE_FILE_NAME, "w", newline="") as f:
@@ -125,21 +91,15 @@ class Repository:
                 writer.writerow(student.as_dict())
 
 
-
-
 repo = Repository()
+
 
 def inject_repository(func):
     def inner(*args, **kwargs):
         return func(*args, repo=repo, **kwargs)
-
     return inner
 
 
-
-# ─────────────────────────────────────────────────────────
-# DOMAIN (student, users, notification)
-# ─────────────────────────────────────────────────────────
 class StudentService:
     @inject_repository
     def add_student(self, repo: Repository, student: Student) -> Student:
@@ -179,29 +139,6 @@ class StudentService:
         if id_ in repo.students:
             del repo.students[id_]
             repo.save_all()
-
-
-# ─────────────────────────────────────────────────────────
-# OPERATIONAL (APPLICATION) LAYER
-# ─────────────────────────────────────────────────────────
-def ask_student_payload() -> dict:
-    ask_prompt = (
-        "Enter student's payload data using text template: "
-        "John Doe;1,2,3,4,5\n"
-        "where 'John Doe' is a full name and [1,2,3,4,5] are marks.\n"
-        "The data must be separated by ';'"
-    )
-
-    def parse(data) -> dict:
-        name, raw_marks = data.split(";")
-
-        return {
-            "name": name,
-            "marks": [int(item) for item in raw_marks.replace(" ", "").split(",")],
-        }
-
-    user_data: str = input(ask_prompt)
-    return parse(user_data)
 
 
 def ask_student_payload() -> dict:
@@ -255,40 +192,23 @@ def student_management_command_handle(command: str):
             print("Error updating student")
 
 
-# ─────────────────────────────────────────────────────────
-# PRESENTATION LAYER
-# ─────────────────────────────────────────────────────────
-
 @auth
-
 def handle_user_input():
-
-
-    OPERATIONAL_COMMANDS = ("quit", "help")
-    STUDENT_MANAGEMENT_COMMANDS = ("show", "add", "search", "delete", "update")
-    AVAILABLE_COMMANDS = (*OPERATIONAL_COMMANDS, *STUDENT_MANAGEMENT_COMMANDS)
-
-    HELP_MESSAGE = (
-        "Hello in the Journal! User the menu to interact with the application.\n"
-        f"Available commands: {AVAILABLE_COMMANDS}"
-    )
-
-    print(HELP_MESSAGE)
+    COMMANDS = ("quit", "help", "show", "add", "delete", "update")
+    print(f"Welcome to Journal. Available commands: {COMMANDS}")
 
     while True:
-        command = input("\n Select command: ")
-
+        command = input("\nEnter command: ").strip()
         if command == "quit":
-            print("\nThanks for using the Journal application")
+            print("Bye!")
             break
         elif command == "help":
-            print(HELP_MESSAGE)
-        else:
+            print(f"Available commands: {COMMANDS}")
+        elif command in COMMANDS:
             student_management_command_handle(command)
+        else:
+            print("Unknown command")
 
 
-# ─────────────────────────────────────────────────────────
-# ENTRYPOINT
-# ─────────────────────────────────────────────────────────
 if __name__ == "__main__":
     handle_user_input()
