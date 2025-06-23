@@ -1,4 +1,3 @@
-id;name;marks;info,,,,,,
 1;Alice Johnson;7,8,9,10,6,7,8;Alice Johnson is 18 y.o. Interests: math
 2;Michael Smith;6,5,7,8,7,9,10;Michael Smith is 19 y.o. Interests: science
 3;Emily Davis;9,8,8,7,6,7,7;Emily Davis is 17 y.o. Interests: literature
@@ -8,5 +7,6 @@ id;name;marks;info,,,,,,
 7;Sophia Taylor;11,10,9,8,7,6,5;Sophia Taylor is 20 y.o. Interests: physics
 8;William Anderson;7,7,7,7,7,7,7;William Anderson is 18 y.o. Interests: chemistry
 9;Isabella Thomas;8,8,8,8,8,8,8;Isabella Thomas is 19 y.o. Interests: biology
-10;Benjamin Jackson;9,9,9,9,9,9,9;Benjamin Jackson is 20 y.o. Interests: history
-,,
+10;asd;1;asd is a student. Interests: unknown
+11;asd;1;asd is a student. Interests: unknown
+12;J;13;asdad
