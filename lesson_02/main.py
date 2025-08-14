@@ -89,10 +89,6 @@ def add_student(student: dict) -> dict | None:
 
         student["info"] = f"{student['info']}"  #
 
-        storage.append(student)
-
-        return student
-
 
 def show_students():
     print("=========================\n")
@@ -115,24 +111,28 @@ def search_student(student_id: int) -> None:
             print(info)
             return
 
-    print(f"Student {student_id} not found")
+
+    print(f"Student {student_name} not found")
 
 
 def ask_student_payload() -> dict:
     ask_prompt = (
         "Enter student's payload data using text template: "
+
         "John Doe;1,2,3,4,5;John Doe is 18 y.o. Interests: math\n"
         "where 'John Doe' is a full name, [1,2,3,4,5] are marks and other is info.\n"
         "The data must be separated by ';'"
     )
 
     def parse(data) -> dict:
+
         name, raw_marks, info = data.split(";")
 
         return {
             "name": name.strip(),
             "marks": [int(item) for item in raw_marks.replace(" ", "").split(",") if item], # if item is added
             "info": info.strip(),
+
         }
 
     user_data: str = input(ask_prompt)
@@ -141,7 +141,7 @@ def ask_student_payload() -> dict:
 
 def student_management_command_handle(command: str):
     if command == "show":
-        show_students()
+        show_students()a
     elif command == "add":
         data = ask_student_payload()
         if data:
