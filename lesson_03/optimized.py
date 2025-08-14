@@ -59,16 +59,16 @@ storage: dict[int, dict] = {
 # CRUD
 # ─────────────────────────────────────────────────────────
 def add_student(student: dict) -> dict | None:
-    if len(student) != 2:
-        return None
+    if len(student) != 3:
+
 
     if not student.get("name") or not student.get("marks"):
         return None
     else:
         # action
-        next_id = max(storage.keys())
-        storage[next_id] = student
-        return student
+
+        next_id = max(storage.keys()) + 1
+
 
 
 def show_students():
@@ -88,19 +88,29 @@ def show_student(student: dict) -> None:
     )
 
 
-def update_student(id_: int, raw_input: str) -> dict | None:
-    parsing_result = raw_input.split(";")
-    if len(parsing_result) != 2:
-        return None
-
-    new_name, new_info = parsing_result
-
+def update_student(id_: int, choose: str, raw_input: str) -> dict | None:
+    
     student: dict | None = storage.get(id_)
     if student is None:
         return None
 
-    student["name"] = new_name
-    student["info"] = new_info
+    if choose == "name":
+        student["name"] = raw_input
+    elif choose == "info":
+        old_info = student["info"]
+        if old_info == "":
+            student["info"] = raw_input
+        elif raw_input in old_info:
+            student["info"] = raw_input
+        else:
+            student["info"] = f"{old_info}. {raw_input}"
+
+    elif choose == "marks":
+        student["marks"] = [int(item) for item in raw_input.replace(" ", "").split(",")]
+
+    else:
+        return
+
 
     return student
 
@@ -111,17 +121,27 @@ def update_student(id_: int, raw_input: str) -> dict | None:
 def ask_student_payload() -> dict:
     ask_prompt = (
         "Enter student's payload data using text template: "
-        "John Doe;1,2,3,4,5\n"
-        "where 'John Doe' is a full name and [1,2,3,4,5] are marks.\n"
+
+        "John Doe;1,2,3,4,5;INFO\n"
+        "where 'John Doe' is a full name, [1,2,3,4,5] are marks and other is INFO. \n"
         "The data must be separated by ';'"
     )
 
     def parse(data) -> dict:
-        name, raw_marks = data.split(";")
+        parts = data.split(";")
+        if len(parts) < 2:
+            return
+
+        name = parts[0]
+        raw_marks = parts[1]
+        info = parts[2] if len(parts) > 2 else ""
+
 
         return {
             "name": name,
             "marks": [int(item) for item in raw_marks.replace(" ", "").split(",")],
+            "info": info,
+
         }
 
     user_data: str = input(ask_prompt)
@@ -152,7 +172,7 @@ def student_management_command_handle(command: str):
             print("Error adding student")
         else:
             show_student(student)
-            print(f"Student {student_id} not found")
+
     elif command == "delete":
         student_id: str = input("\nEnter student's ID: ")
         if not student_id:
@@ -162,6 +182,9 @@ def student_management_command_handle(command: str):
         id_ = int(student_id)
         if storage.get(id_):
             del storage[id_]
+
+
+# ======================================================= #
 
     elif command == "update":
         student_id: str = input("\nEnter student's ID: ")
@@ -177,11 +200,17 @@ def student_management_command_handle(command: str):
 
         show_student(student)
         print(
-            f"\n\nTo update user's data, specify `name` and `info`, with `;` separator.\n"
+            f"\nWhat changes do you want? 'name' or 'info' or 'marks' ?\n"
         )
 
-        user_input: str = input("Enter: ")
-        updated_student: dict | None = update_student(id_=id_, raw_input=user_input)
+        user_choose: str = input("Enter: ")
+        if user_choose == "marks":
+            user_input: str = input("Enter marks by ',': ")
+        else:
+            user_input: str = input("Enter: ")
+
+        updated_student: dict | None = update_student(id_=id_, choose=user_choose, raw_input=user_input)
+
 
         if updated_student is None:
             print("Erorr on updating student")
@@ -189,9 +218,31 @@ def student_management_command_handle(command: str):
             print(f"Student {updated_student['name']} is updated")
 
 
+    elif command == "addmark":
+        student_id: str = input("\nEnter student's ID: ")
+        if not student_id:
+            print("Student ID must be specified for update")
+            return
+
+        id_ = int(student_id)
+        student: dict | None = storage.get(id_)
+        if student is None:
+            print(f"Student {student_id} not found")
+            return
+
+        marks_input: str = input("Enter marks by ',': ")
+        new_marks = [int(item) for item in marks_input.split(",")]
+
+        if "marks" in student:
+            student["marks"].extend(new_marks)
+        else:
+            student["marks"] = new_marks
+
+
 def handle_user_input():
     OPERATIONAL_COMMANDS = ("quit", "help")
-    STUDENT_MANAGEMENT_COMMANDS = ("show", "add", "search", "delete", "update")
+    STUDENT_MANAGEMENT_COMMANDS = ("show", "add", "search", "delete", "update", "addmark")
+
     AVAILABLE_COMMANDS = (*OPERATIONAL_COMMANDS, *STUDENT_MANAGEMENT_COMMANDS)
 
     HELP_MESSAGE = (
