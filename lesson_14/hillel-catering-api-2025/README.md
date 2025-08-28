@@ -1,0 +1,68 @@
+# IDEA
+
+- Users Management
+    - user registration (username, email, password, delivery address, phone)
+    - user profile management
+    - user roles management (admin, manager, customer, driver)
+- Authentication / Authorization
+    - JWT (JSON Web Token) for secure token authentication
+- Menu and Dishes Management
+    - admin can add, edit, delete dishes
+    - V2, display dishes recommendations, based on user's orders
+- Orders Management
+    - Scheduling Orders (based on datetime and address)
+    - Order status is updating ia a background
+        - PROCESSING
+        - ON THE WAY
+        - CANCELLD
+        - DELIVERED
+    - V2, Track courier on the Map
+- Payment System
+    - ...
+- Communication & Feedback
+    - V2, Support System
+    - V2, Communication with driver, after order is ON THE WAY
+    - Rate: stars for restaurants and drivers after order is DELIVERED
+- Notifications
+    - Notify after order is DELIVERED
+        - 
+
+
+# BACKLOG FOR "KANBAN" TICKETS
+
+- USERS MANAGEMENT (CRUD for `/users`) - EPIC
+    - Endpoints to implement
+        - User STORY (from Jira)
+            - `HTTP POST /users` - create user -> `201 User`, [CUSTOMER, DRIVER]
+            - `HTTP PUT /users` - update user information -> `200 User`, [ALL]
+            - `HTTP GET /users` - update user information -> `200 User`, [ALL]
+            - `HTTP DELETE /users` - delete user from system -> `204 null`, [CUSTOMER, DRIVER]
+            - `HTTP POST /users/password/forgot` -> [KEY[UUID]]
+            - `HTTP GET /users/password/reset?key={UUID}`
+    - Roles:
+        - `ADMIN`
+        - `MANAGER`
+        - `DRIVER`
+        - `CUSTOMER`
+- AUTHORIZATION
+    - `HTTP POST /token` - create access token -> `200 Token` [ALL]
+- DISHES MANAGEMENT
+    - Endopints (CRUD)
+        - `HTTP POST /dishes` - create a new dish [ADMIN, MANAGER]
+        - `HTTP GET /dishes` - list of all dishes [ADMIN, MANAGER, CUSTOMER]
+        - `HTTP GET /dishes/<ID>` - get a concrete DISH [ADMIN, MANAGER, CUSTOMER]
+        - `HTTP PUT /dishes/<ID>` - update a concrete DISH [ADMIN, MANAGER]
+        - `HTTP DELETE /dishes/<ID>` - delete a concrete DISH [ADMIN, MANAGER]
+    - Refresh data from restaurant
+        - as a separate `Thread(daemon=True)`
+    - Show recommendations (V2)
+- ORDERS MANAGEMENT
+    - Endopints (CRUD)
+        - `HTTP POST /orders` - create a new order [CUSTOMER]
+            - request body: `{ dishes: DishOrder[] }`
+        - `HTTP GET /orderes` - list of all orders [ADMIN, MANAGER]
+        - `HTTP GET /orderes/<ID>` - get a concrete order [ADMIN, MANAGER, CUSTOMER]
+        - `HTTP PUT /orderes/<ID>` - update a concrete order [ADMIN, MANAGER, CUSTOMER]
+        - `HTTP DELETE /orderes/<ID>` - delete a concrete order [ADMIN, MANAGER]
+        - `HTTP POST /orders/<ID>/reorder` - reorder order [CUSTOMER]
+            - create a brand new order in the system
